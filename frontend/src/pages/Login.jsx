@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { LogIn } from 'lucide-react';
-import toast from 'react-hot-toast';
-import '../assets/css/Auth.css';
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { LogIn } from "lucide-react";
+import toast from "react-hot-toast";
+import "../assets/css/Auth.css";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -17,9 +17,9 @@ const Login = () => {
     setLoading(true);
     try {
       await login(email, password);
-      navigate('/');
+      navigate("/");
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to login');
+      toast.error(err.response?.data?.message || "Failed to login");
     } finally {
       setLoading(false);
     }
@@ -33,7 +33,9 @@ const Login = () => {
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label" htmlFor="email">Email Address</label>
+            <label className="form-label" htmlFor="email">
+              Email Address
+            </label>
             <input
               className="form-input"
               type="email"
@@ -47,7 +49,9 @@ const Login = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="password">Password</label>
+            <label className="form-label" htmlFor="password">
+              Password
+            </label>
             <input
               className="form-input"
               type="password"
@@ -59,12 +63,17 @@ const Login = () => {
             />
           </div>
 
-          <button className="btn-primary auth-submit" type="submit" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+          <button
+            className="btn-primary auth-submit"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Signing in..." : "Sign In"}
           </button>
-          
+
           <div className="auth-footer">
-            Don't have an account? <RouterLink to="/register">Sign up</RouterLink>
+            Don't have an account?{" "}
+            <RouterLink to="/register">Sign up</RouterLink>
           </div>
         </form>
       </div>

@@ -30,15 +30,12 @@ The backend for ParkFlow is a robust, highly-scalable Express.js REST API. It ha
    npm install
    ```
 
-2. **Environment Configuration**:
-   Create a `.env` file in the `backend` root directory:
-   ```env
-   PORT=5000
-   SUPABASE_URL=your_supabase_project_url
-   SUPABASE_ANON_KEY=your_supabase_anon_key
-   JWT_SECRET=your_super_secret_jwt_string
-   JWT_EXPIRES_IN=30d
+3. **Environment Configuration**:
+   We have provided a `.env.example` file. Copy it to create your own `.env` file:
+   ```bash
+   cp .env.example .env
    ```
+   Open the `.env` file and fill in your Supabase credentials, JWT keys, and database URL.
 
 3. **Database Initialization**:
    You must set up your PostgreSQL database schema before running the server. 
@@ -72,3 +69,53 @@ The API is structured around several core domains:
 
 ## 🔐 Authentication Flow
 All protected routes require an `Authorization: Bearer <token>` header. The `protect` middleware verifies the token, while the `authorize(...roles)` middleware ensures the authenticated user has the correct permission level.
+
+## 🗄️ Database Schema & Relationships
+
+ParkFlow uses a robust relational PostgreSQL database with the following core tables:
+
+### 1. `users`
+Stores all platform users.
+- **Columns**: `id`, `name`, `email`, `password_hash`, `role` (SUPER_ADMIN, PARKING_ADMIN, WORKER), `status`.
+- **Relationships**: A single user can create many locations (if PARKING_ADMIN) or be assigned to locations (if WORKER).
+
+### 2. `parking_locations`
+Represents physical parking facilities/buildings.
+- **Columns**: `id`, `admin_id`, `name`, `code`, `address`, `city`, `latitude`, `longitude`.
+- **Relationships**: 
+  - Belongs to `users` (`admin_id`).
+  - Has many `parking_slots`, `pricing_rules`, and `parking_sessions`.
+
+### 3. `parking_workers` (Junction Table)
+Maps Workers to the locations they are authorized to operate.
+- **Columns**: `id`, `user_id`, `parking_location_id`.
+- **Relationships**: Connects `users` to `parking_locations`.
+
+### 4. `vehicle_categories`
+Defines standard vehicle types (e.g., CAR, BIKE, TRUCK).
+- **Columns**: `id`, `name`, `code`.
+- **Relationships**: Used by slots, pricing rules, and sessions.
+
+### 5. `parking_slots`
+Represents individual physical parking spots.
+- **Columns**: `id`, `parking_location_id`, `slot_number`, `vehicle_category_id`, `status` (AVAILABLE, OCCUPIED).
+- **Relationships**: 
+  - Belongs to a `parking_location`.
+  - Is restricted to a specific `vehicle_category`.
+
+### 6. `pricing_rules`
+Defines dynamic pricing per location and vehicle type.
+- **Columns**: `id`, `parking_location_id`, `vehicle_category_id`, `base_price`, `hourly_price`, `daily_price`.
+- **Relationships**: Belongs to a location and a category.
+
+### 7. `parking_sessions`
+The core transactional table tracking a vehicle's stay.
+- **Columns**: `id`, `ticket_number`, `parking_location_id`, `slot_id`, `vehicle_number`, `entry_time`, `exit_time`, `total_amount`, `status` (ACTIVE, COMPLETED).
+- **Relationships**: 
+  - Belongs to a location, slot, and category.
+  - Linked to the worker who generated it (`created_by`, `closed_by`).
+
+### 8. `payments`
+Tracks financial transactions.
+- **Columns**: `id`, `session_id`, `amount`, `payment_method`, `reference_number`.
+- **Relationships**: Belongs to a `parking_session`.

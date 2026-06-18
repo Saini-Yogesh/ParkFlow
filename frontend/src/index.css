@@ -18,8 +18,8 @@
   --border-color-strong: rgba(255, 255, 255, 0.1);
 
   /* Typography */
-  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  
+  --font-family: "Inter", system-ui, -apple-system, sans-serif;
+
   /* Spacing & Layout */
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -29,11 +29,25 @@
 }
 
 /* CSS Reset */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-body, h1, h2, h3, h4, h5, h6, p, ul, figure, blockquote, dl, dd {
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+figure,
+blockquote,
+dl,
+dd {
   margin: 0;
   padding: 0;
 }
@@ -75,7 +89,10 @@ a:hover {
   text-decoration: underline;
 }
 
-input, button, textarea, select {
+input,
+button,
+textarea,
+select {
   font: inherit;
 }
 
@@ -123,7 +140,7 @@ button {
 }
 
 .spinner {
-  border: 3px solid rgba(255,255,255,0.1);
+  border: 3px solid rgba(255, 255, 255, 0.1);
   border-top-color: var(--primary-main);
   border-radius: 50%;
   width: 32px;
@@ -132,5 +149,7 @@ button {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }

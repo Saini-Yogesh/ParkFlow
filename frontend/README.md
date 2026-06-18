@@ -37,10 +37,11 @@ The frontend for ParkFlow is a modern, responsive Single Page Application (SPA) 
    ```
 
 2. **Environment Configuration**:
-   Create a `.env` file in the `frontend` root directory:
-   ```env
-   VITE_API_URL=http://localhost:5000/api
+   We have provided a `.env.example` file. Copy it to create your own `.env` file:
+   ```bash
+   cp .env.example .env
    ```
+   Open the `.env` file and verify the `VITE_API_BASE_URL` matches your running backend.
 
 3. **Start the Development Server**:
    ```bash

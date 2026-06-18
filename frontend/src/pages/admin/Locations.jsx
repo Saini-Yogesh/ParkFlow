@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import api from '../../api/axios';
-import toast from 'react-hot-toast';
-import '../../assets/css/AdminCommon.css';
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import api from "../../api/axios";
+import toast from "react-hot-toast";
+import "../../assets/css/AdminCommon.css";
 
 const Locations = () => {
   const [locations, setLocations] = useState([]);
@@ -11,10 +11,10 @@ const Locations = () => {
 
   const fetchLocations = async () => {
     try {
-      const res = await api.get('/locations');
+      const res = await api.get("/locations");
       setLocations(res.data.data);
     } catch (err) {
-      toast.error('Failed to fetch locations');
+      toast.error("Failed to fetch locations");
     }
   };
 
@@ -24,13 +24,13 @@ const Locations = () => {
 
   const onSubmit = async (data) => {
     try {
-      await api.post('/locations', data);
+      await api.post("/locations", data);
       setOpen(false);
       reset();
       fetchLocations();
-      toast.success('Location added successfully!');
+      toast.success("Location added successfully!");
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create location');
+      toast.error(err.response?.data?.message || "Failed to create location");
     }
   };
 
@@ -39,7 +39,9 @@ const Locations = () => {
       <div className="page-header">
         <h1 className="page-title">Parking Locations</h1>
         <div className="header-actions">
-          <button className="btn-primary" onClick={() => setOpen(true)}>Add Location</button>
+          <button className="btn-primary" onClick={() => setOpen(true)}>
+            Add Location
+          </button>
         </div>
       </div>
 
@@ -61,11 +63,17 @@ const Locations = () => {
             ) : (
               locations.map((row) => (
                 <tr key={row.id}>
-                  <td><span className="badge badge-primary">{row.code}</span></td>
-                  <td style={{ fontWeight: 600 }}>{row.name}</td>
-                  <td>{row.city}, {row.country}</td>
                   <td>
-                    <span className={`badge ${row.status === 'ACTIVE' ? 'badge-success' : 'badge-error'}`}>
+                    <span className="badge badge-primary">{row.code}</span>
+                  </td>
+                  <td style={{ fontWeight: 600 }}>{row.name}</td>
+                  <td>
+                    {row.city}, {row.country}
+                  </td>
+                  <td>
+                    <span
+                      className={`badge ${row.status === "ACTIVE" ? "badge-success" : "badge-error"}`}
+                    >
                       {row.status}
                     </span>
                   </td>
@@ -78,7 +86,7 @@ const Locations = () => {
 
       {open && (
         <div className="modal-overlay" onClick={() => setOpen(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">Add New Location</h2>
             </div>
@@ -87,29 +95,60 @@ const Locations = () => {
                 <div className="form-grid">
                   <div className="form-group">
                     <label className="form-label">Location Name</label>
-                    <input className="form-input" required {...register('name')} />
+                    <input
+                      className="form-input"
+                      required
+                      {...register("name")}
+                    />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Location Code (e.g. LOC-01)</label>
-                    <input className="form-input" required {...register('code')} />
+                    <label className="form-label">
+                      Location Code (e.g. LOC-01)
+                    </label>
+                    <input
+                      className="form-input"
+                      required
+                      {...register("code")}
+                    />
                   </div>
-                  <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <div className="form-group" style={{ gridColumn: "1 / -1" }}>
                     <label className="form-label">Address</label>
-                    <input className="form-input" required {...register('address')} />
+                    <input
+                      className="form-input"
+                      required
+                      {...register("address")}
+                    />
                   </div>
                   <div className="form-group">
                     <label className="form-label">City</label>
-                    <input className="form-input" required {...register('city')} />
+                    <input
+                      className="form-input"
+                      required
+                      {...register("city")}
+                    />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Country</label>
-                    <input className="form-input" required defaultValue="USA" {...register('country')} />
+                    <input
+                      className="form-input"
+                      required
+                      defaultValue="USA"
+                      {...register("country")}
+                    />
                   </div>
                 </div>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn-secondary" onClick={() => setOpen(false)}>Cancel</button>
-                <button type="submit" className="btn-primary">Create Location</button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary">
+                  Create Location
+                </button>
               </div>
             </form>
           </div>

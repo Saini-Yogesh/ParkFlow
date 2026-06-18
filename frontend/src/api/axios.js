@@ -1,22 +1,25 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 // Interceptor to add access token to requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
 
 // Interceptor to handle 401s and refresh token
 api.interceptors.response.use(
@@ -29,32 +32,35 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
+        const refreshToken = localStorage.getItem("refreshToken");
         if (!refreshToken) {
-          throw new Error('No refresh token available');
+          throw new Error("No refresh token available");
         }
 
-        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/refresh`, {
-          token: refreshToken
-        });
+        const res = await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
+          {
+            token: refreshToken,
+          },
+        );
 
         if (res.data?.data?.accessToken) {
-          localStorage.setItem('accessToken', res.data.data.accessToken);
+          localStorage.setItem("accessToken", res.data.data.accessToken);
           originalRequest.headers.Authorization = `Bearer ${res.data.data.accessToken}`;
           return api(originalRequest);
         }
       } catch (err) {
         // Refresh token failed or is expired, clear storage and redirect to login
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
         return Promise.reject(err);
       }
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

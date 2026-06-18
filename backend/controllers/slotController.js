@@ -1,5 +1,8 @@
-const supabase = require('../config/supabase');
-const { successResponse, errorResponse } = require('../utils/responseFormatter');
+const supabase = require("../config/supabase");
+const {
+  successResponse,
+  errorResponse,
+} = require("../utils/responseFormatter");
 
 // @desc    Create a new slot
 // @route   POST /api/slots
@@ -8,43 +11,56 @@ const createSlot = async (req, res, next) => {
   try {
     const { parking_location_id, slot_number, vehicle_category_id } = req.body;
 
-    if (req.user.role !== 'PARKING_ADMIN') {
-      return errorResponse(res, 'Only Parking Admin can create slots', 403);
+    if (req.user.role !== "PARKING_ADMIN") {
+      return errorResponse(res, "Only Parking Admin can create slots", 403);
     }
 
     // Verify location belongs to admin
     const { data: location } = await supabase
-      .from('parking_locations')
-      .select('id')
-      .eq('id', parking_location_id)
-      .eq('admin_id', req.user.id)
+      .from("parking_locations")
+      .select("id")
+      .eq("id", parking_location_id)
+      .eq("admin_id", req.user.id)
       .single();
 
     if (!location) {
-      return errorResponse(res, 'Parking location not found or unauthorized', 404);
+      return errorResponse(
+        res,
+        "Parking location not found or unauthorized",
+        404,
+      );
     }
 
     const { data: slot, error } = await supabase
-      .from('parking_slots')
-      .insert([{
-        parking_location_id,
-        slot_number,
-        vehicle_category_id
-      }])
+      .from("parking_slots")
+      .insert([
+        {
+          parking_location_id,
+          slot_number,
+          vehicle_category_id,
+        },
+      ])
       .select()
       .single();
 
     if (error) {
-      if (error.code === '23505') {
-        return errorResponse(res, 'Slot number already exists in this location', 400);
+      if (error.code === "23505") {
+        return errorResponse(
+          res,
+          "Slot number already exists in this location",
+          400,
+        );
       }
       throw error;
     }
 
     // Emit event
-    req.app.get('io').to(`location_${parking_location_id}`).emit('slot-updated', slot);
+    req.app
+      .get("io")
+      .to(`location_${parking_location_id}`)
+      .emit("slot-updated", slot);
 
-    successResponse(res, slot, 'Slot created successfully', 201);
+    successResponse(res, slot, "Slot created successfully", 201);
   } catch (error) {
     next(error);
   }
@@ -58,35 +74,37 @@ const getSlots = async (req, res, next) => {
     const { parking_location_id } = req.query;
 
     if (!parking_location_id) {
-      return errorResponse(res, 'Parking location ID is required', 400);
+      return errorResponse(res, "Parking location ID is required", 400);
     }
 
     // For worker, verify assignment
-    if (req.user.role === 'WORKER') {
+    if (req.user.role === "WORKER") {
       const { data: worker } = await supabase
-        .from('parking_workers')
-        .select('id')
-        .eq('user_id', req.user.id)
-        .eq('parking_location_id', parking_location_id)
+        .from("parking_workers")
+        .select("id")
+        .eq("user_id", req.user.id)
+        .eq("parking_location_id", parking_location_id)
         .single();
 
       if (!worker) {
-        return errorResponse(res, 'Not authorized for this location', 403);
+        return errorResponse(res, "Not authorized for this location", 403);
       }
     }
 
     const { data: slots, error } = await supabase
-      .from('parking_slots')
-      .select(`
+      .from("parking_slots")
+      .select(
+        `
         *,
         vehicle_categories (name, code)
-      `)
-      .eq('parking_location_id', parking_location_id)
-      .order('slot_number');
+      `,
+      )
+      .eq("parking_location_id", parking_location_id)
+      .order("slot_number");
 
     if (error) throw error;
 
-    successResponse(res, slots, 'Slots fetched successfully');
+    successResponse(res, slots, "Slots fetched successfully");
   } catch (error) {
     next(error);
   }
@@ -100,24 +118,24 @@ const getAvailableSlots = async (req, res, next) => {
     const { parking_location_id, vehicle_category_id } = req.query;
 
     if (!parking_location_id) {
-      return errorResponse(res, 'Parking location ID is required', 400);
+      return errorResponse(res, "Parking location ID is required", 400);
     }
 
     let query = supabase
-      .from('parking_slots')
-      .select('*')
-      .eq('parking_location_id', parking_location_id)
-      .eq('status', 'AVAILABLE');
+      .from("parking_slots")
+      .select("*")
+      .eq("parking_location_id", parking_location_id)
+      .eq("status", "AVAILABLE");
 
     if (vehicle_category_id) {
-      query = query.eq('vehicle_category_id', vehicle_category_id);
+      query = query.eq("vehicle_category_id", vehicle_category_id);
     }
 
     const { data: slots, error } = await query;
 
     if (error) throw error;
 
-    successResponse(res, slots, 'Available slots fetched successfully');
+    successResponse(res, slots, "Available slots fetched successfully");
   } catch (error) {
     next(error);
   }
@@ -130,26 +148,31 @@ const updateSlotStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
 
-    if (req.user.role !== 'PARKING_ADMIN') {
-      return errorResponse(res, 'Only Parking Admin can modify slots', 403);
+    if (req.user.role !== "PARKING_ADMIN") {
+      return errorResponse(res, "Only Parking Admin can modify slots", 403);
     }
 
-    if (!['AVAILABLE', 'OCCUPIED', 'MAINTENANCE', 'RESERVED'].includes(status)) {
-      return errorResponse(res, 'Invalid status', 400);
+    if (
+      !["AVAILABLE", "OCCUPIED", "MAINTENANCE", "RESERVED"].includes(status)
+    ) {
+      return errorResponse(res, "Invalid status", 400);
     }
 
     const { data: slot, error } = await supabase
-      .from('parking_slots')
+      .from("parking_slots")
       .update({ status })
-      .eq('id', req.params.id)
+      .eq("id", req.params.id)
       .select()
       .single();
 
     if (error) throw error;
 
-    req.app.get('io').to(`location_${slot.parking_location_id}`).emit('slot-updated', slot);
+    req.app
+      .get("io")
+      .to(`location_${slot.parking_location_id}`)
+      .emit("slot-updated", slot);
 
-    successResponse(res, slot, 'Slot updated successfully');
+    successResponse(res, slot, "Slot updated successfully");
   } catch (error) {
     next(error);
   }
@@ -159,5 +182,5 @@ module.exports = {
   createSlot,
   getSlots,
   getAvailableSlots,
-  updateSlotStatus
+  updateSlotStatus,
 };

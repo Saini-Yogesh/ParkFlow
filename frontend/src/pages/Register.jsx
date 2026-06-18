@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import '../assets/css/Auth.css';
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import toast from "react-hot-toast";
+import "../assets/css/Auth.css";
 
 const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
@@ -17,10 +17,10 @@ const Register = () => {
     setLoading(true);
     try {
       await registerUser(name, email, password);
-      toast.success('Registration successful!');
-      navigate('/');
+      toast.success("Registration successful!");
+      navigate("/");
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to register');
+      toast.error(err.response?.data?.message || "Failed to register");
     } finally {
       setLoading(false);
     }
@@ -34,7 +34,9 @@ const Register = () => {
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label" htmlFor="name">Full Name</label>
+            <label className="form-label" htmlFor="name">
+              Full Name
+            </label>
             <input
               className="form-input"
               type="text"
@@ -47,7 +49,9 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="email">Email Address</label>
+            <label className="form-label" htmlFor="email">
+              Email Address
+            </label>
             <input
               className="form-input"
               type="email"
@@ -60,7 +64,9 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="password">Password</label>
+            <label className="form-label" htmlFor="password">
+              Password
+            </label>
             <input
               className="form-input"
               type="password"
@@ -72,12 +78,17 @@ const Register = () => {
             />
           </div>
 
-          <button className="btn-primary auth-submit" type="submit" disabled={loading}>
-            {loading ? 'Signing up...' : 'Sign Up'}
+          <button
+            className="btn-primary auth-submit"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Signing up..." : "Sign Up"}
           </button>
-          
+
           <div className="auth-footer">
-            Already have an account? <RouterLink to="/login">Sign in</RouterLink>
+            Already have an account?{" "}
+            <RouterLink to="/login">Sign in</RouterLink>
           </div>
         </form>
       </div>
