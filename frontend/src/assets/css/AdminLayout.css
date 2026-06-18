@@ -18,7 +18,9 @@
 }
 
 .sidebar-header {
-  padding: 24px;
+  height: 80px;
+  flex-shrink: 0;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,19 +78,6 @@
   min-width: 0;
 }
 
-.admin-header {
-  height: 100px;
-  background-color: var(--bg-paper);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  padding: 0 24px;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
 .header-left {
   display: flex;
   align-items: center;
@@ -99,12 +88,6 @@
   display: none;
   color: var(--text-primary);
   padding: 8px;
-}
-
-.header-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
 }
 
 .header-right {
@@ -150,12 +133,6 @@
 
 .menu-item:hover {
   background-color: rgba(255, 255, 255, 0.05);
-}
-
-.admin-content {
-  padding: 24px;
-  flex-grow: 1;
-  overflow-y: auto;
 }
 
 /* Mobile Overlay */

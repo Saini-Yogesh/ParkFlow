@@ -11,13 +11,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const verifyToken = async () => {
       const token = localStorage.getItem("accessToken");
-      if (token) {
-        try {
-          const res = await api.get("/users/me");
-          setUser(res.data.data);
-        } catch (err) {
-          localStorage.removeItem("token");
-        }
+      const storedUser = localStorage.getItem("user");
+
+      if (token && storedUser) {
+        setUser(JSON.parse(storedUser));
+      } else {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
       }
       setLoading(false);
     };
