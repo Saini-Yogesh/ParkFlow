@@ -112,6 +112,19 @@ const loginUser = async (req, res, next) => {
       .update({ last_login: new Date() })
       .eq("id", user.id);
 
+    // Fetch parking_location_id if worker
+    let parking_location_id = null;
+    if (user.role === "WORKER") {
+      const { data: workerData } = await supabase
+        .from("parking_workers")
+        .select("parking_location_id")
+        .eq("user_id", user.id)
+        .single();
+      if (workerData) {
+        parking_location_id = workerData.parking_location_id;
+      }
+    }
+
     const accessToken = generateToken(user.id);
     const refreshToken = generateRefreshToken(user.id);
 
@@ -122,6 +135,7 @@ const loginUser = async (req, res, next) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        parking_location_id,
         accessToken,
         refreshToken,
       },

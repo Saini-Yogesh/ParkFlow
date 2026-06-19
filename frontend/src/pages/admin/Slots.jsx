@@ -8,6 +8,7 @@ const Slots = () => {
   const [slots, setSlots] = useState([]);
   const [locations, setLocations] = useState([]);
   const [open, setOpen] = useState(false);
+  const [editSlot, setEditSlot] = useState(null);
   const [selectedLoc, setSelectedLoc] = useState("");
   const { register, handleSubmit, reset } = useForm();
 
@@ -41,14 +42,40 @@ const Slots = () => {
 
   const onSubmit = async (data) => {
     try {
-      await api.post("/slots", { ...data, parking_location_id: selectedLoc });
+      if (editSlot) {
+        await api.patch(`/slots/${editSlot.id}`, data);
+        toast.success("Slot updated successfully!");
+      } else {
+        await api.post("/slots", { ...data, parking_location_id: selectedLoc });
+        toast.success("Slot created successfully!");
+      }
       setOpen(false);
-      reset();
+      setEditSlot(null);
+      reset({ slot_number: "", vehicle_category: "CAR" });
       fetchSlots(selectedLoc);
-      toast.success("Slot created successfully!");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to create slot");
+      toast.error(err.response?.data?.message || "Failed to save slot");
     }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this slot?")) return;
+    try {
+      await api.delete(`/slots/${id}`);
+      toast.success("Slot deleted successfully");
+      fetchSlots(selectedLoc);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete slot");
+    }
+  };
+
+  const openEditModal = (slot) => {
+    setEditSlot(slot);
+    reset({
+      slot_number: slot.slot_number,
+      vehicle_category: slot.vehicle_category,
+    });
+    setOpen(true);
   };
 
   return (
@@ -76,7 +103,11 @@ const Slots = () => {
           <button
             className="btn-primary"
             disabled={!selectedLoc}
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              setEditSlot(null);
+              reset({ slot_number: "", vehicle_category: "CAR" });
+              setOpen(true);
+            }}
           >
             Add Slot
           </button>
@@ -90,12 +121,13 @@ const Slots = () => {
               <th>Slot Number</th>
               <th>Category</th>
               <th>Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {slots.length === 0 ? (
               <tr className="empty-row">
-                <td colSpan="3">No slots found</td>
+                <td colSpan="4">No slots found</td>
               </tr>
             ) : (
               slots.map((row) => (
@@ -115,6 +147,24 @@ const Slots = () => {
                       {row.status}
                     </span>
                   </td>
+                  <td>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <button
+                        className="btn-secondary"
+                        onClick={() => openEditModal(row)}
+                        style={{ padding: "0.25rem 0.75rem", fontSize: "0.875rem" }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn-secondary"
+                        onClick={() => handleDelete(row.id)}
+                        style={{ padding: "0.25rem 0.75rem", fontSize: "0.875rem", color: "#ef4444", borderColor: "#ef4444" }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))
             )}
@@ -130,7 +180,7 @@ const Slots = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h2 className="modal-title">Add New Slot</h2>
+              <h2 className="modal-title">{editSlot ? "Edit Slot" : "Add New Slot"}</h2>
             </div>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="modal-body">
@@ -169,7 +219,7 @@ const Slots = () => {
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary">
-                  Create Slot
+                  {editSlot ? "Save Changes" : "Create Slot"}
                 </button>
               </div>
             </form>

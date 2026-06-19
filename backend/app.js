@@ -9,6 +9,9 @@ const logger = require("./utils/logger");
 // Initialize app
 const app = express();
 
+// Trust reverse proxy (Vercel, Render, etc.) to get real client IP for rate limiting
+app.set("trust proxy", 1);
+
 // Security Middleware
 app.use(helmet());
 app.use(
@@ -24,7 +27,7 @@ app.use(
 // Rate Limiting
 const apiLimiter = rateLimit({
   windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // Limit each IP to 100 requests per `window`
+  max: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 500, // Limit each IP to 500 requests per window
   standardHeaders: true,
   legacyHeaders: false,
 });

@@ -42,22 +42,26 @@ const AdminLayout = () => {
     logout();
   };
 
-  const menuItems = [
+  const allMenuItems = [
     {
       text: "Enterprise",
       icon: <BarChart size={20} />,
       path: "/admin/enterprise",
+      roles: ["SUPER_ADMIN"],
     },
     {
       text: "Location Dashboard",
       icon: <LayoutDashboard size={20} />,
       path: "/admin/dashboard",
+      roles: ["PARKING_ADMIN"],
     },
-    { text: "Locations", icon: <MapPin size={20} />, path: "/admin/locations" },
-    { text: "Workers", icon: <Users size={20} />, path: "/admin/workers" },
-    { text: "Slots", icon: <ParkingCircle size={20} />, path: "/admin/slots" },
-    { text: "Pricing", icon: <DollarSign size={20} />, path: "/admin/pricing" },
+    { text: "Locations", icon: <MapPin size={20} />, path: "/admin/locations", roles: ["PARKING_ADMIN"] },
+    { text: "Workers", icon: <Users size={20} />, path: "/admin/workers", roles: ["PARKING_ADMIN"] },
+    { text: "Slots", icon: <ParkingCircle size={20} />, path: "/admin/slots", roles: ["PARKING_ADMIN"] },
+    { text: "Pricing", icon: <DollarSign size={20} />, path: "/admin/pricing", roles: ["PARKING_ADMIN"] },
   ];
+
+  const menuItems = allMenuItems.filter((item) => item.roles.includes(user?.role));
 
   const currentTitle =
     menuItems.find((m) => location.pathname.startsWith(m.path))?.text ||

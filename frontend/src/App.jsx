@@ -91,6 +91,8 @@ function App() {
                 <Landing />
               ) : user.role === "WORKER" ? (
                 <Navigate to="/worker/dashboard" replace />
+              ) : user.role === "SUPER_ADMIN" ? (
+                <Navigate to="/admin/enterprise" replace />
               ) : (
                 <Navigate to="/admin/dashboard" replace />
               )
@@ -106,12 +108,54 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="enterprise" element={<EnterpriseDashboard />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="locations" element={<Locations />} />
-            <Route path="workers" element={<Workers />} />
-            <Route path="slots" element={<Slots />} />
-            <Route path="pricing" element={<Pricing />} />
+            <Route 
+              path="enterprise" 
+              element={
+                <ProtectedRoute allowedRoles={["SUPER_ADMIN"]}>
+                  <EnterpriseDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="dashboard" 
+              element={
+                <ProtectedRoute allowedRoles={["PARKING_ADMIN"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="locations" 
+              element={
+                <ProtectedRoute allowedRoles={["PARKING_ADMIN"]}>
+                  <Locations />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="workers" 
+              element={
+                <ProtectedRoute allowedRoles={["PARKING_ADMIN"]}>
+                  <Workers />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="slots" 
+              element={
+                <ProtectedRoute allowedRoles={["PARKING_ADMIN"]}>
+                  <Slots />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="pricing" 
+              element={
+                <ProtectedRoute allowedRoles={["PARKING_ADMIN"]}>
+                  <Pricing />
+                </ProtectedRoute>
+              } 
+            />
           </Route>
 
           {/* Worker Routes */}

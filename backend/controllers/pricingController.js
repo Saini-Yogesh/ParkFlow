@@ -79,7 +79,53 @@ const getPricing = async (req, res, next) => {
   }
 };
 
+// @desc    Update pricing rule
+// @route   PATCH /api/pricing/:id
+// @access  Private (PARKING_ADMIN)
+const updatePricing = async (req, res, next) => {
+  try {
+    const { base_price, hourly_price, daily_price } = req.body;
+
+    const { data: pricing, error } = await supabase
+      .from("pricing_rules")
+      .update({
+        base_price,
+        hourly_price,
+        daily_price,
+      })
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    successResponse(res, pricing, "Pricing rule updated successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete pricing rule
+// @route   DELETE /api/pricing/:id
+// @access  Private (PARKING_ADMIN)
+const deletePricing = async (req, res, next) => {
+  try {
+    const { error } = await supabase
+      .from("pricing_rules")
+      .delete()
+      .eq("id", req.params.id);
+
+    if (error) throw error;
+
+    successResponse(res, null, "Pricing rule deleted successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createPricing,
   getPricing,
+  updatePricing,
+  deletePricing,
 };

@@ -5,6 +5,8 @@ const {
   getSlots,
   getAvailableSlots,
   updateSlotStatus,
+  updateSlot,
+  deleteSlot,
 } = require("../controllers/slotController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -14,6 +16,6 @@ router.get("/available", getAvailableSlots);
 
 router.route("/").post(createSlot).get(getSlots);
 
-router.route("/:id").put(updateSlotStatus);
+router.route("/:id").put(updateSlotStatus).patch(updateSlot).delete(deleteSlot);
 
 module.exports = router;

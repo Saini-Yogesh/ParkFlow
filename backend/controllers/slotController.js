@@ -9,7 +9,7 @@ const {
 // @access  Private (PARKING_ADMIN)
 const createSlot = async (req, res, next) => {
   try {
-    const { parking_location_id, slot_number, vehicle_category_id } = req.body;
+    const { parking_location_id, slot_number, vehicle_category } = req.body;
 
     if (req.user.role !== "PARKING_ADMIN") {
       return errorResponse(res, "Only Parking Admin can create slots", 403);
@@ -31,13 +31,27 @@ const createSlot = async (req, res, next) => {
       );
     }
 
+    const frontendToDbCode = {
+      CAR: "MEDIUM",
+      BIKE: "LIGHT",
+      TRUCK: "HEAVY"
+    };
+
+    // Look up category ID
+    const dbCode = frontendToDbCode[vehicle_category] || "MEDIUM";
+    const { data: catData } = await supabase
+      .from("vehicle_categories")
+      .select("id")
+      .eq("code", dbCode)
+      .single();
+
     const { data: slot, error } = await supabase
       .from("parking_slots")
       .insert([
         {
           parking_location_id,
           slot_number,
-          vehicle_category_id,
+          vehicle_category_id: catData?.id,
         },
       ])
       .select()
@@ -54,11 +68,8 @@ const createSlot = async (req, res, next) => {
       throw error;
     }
 
-    // Emit event
-    req.app
-      .get("io")
-      .to(`location_${parking_location_id}`)
-      .emit("slot-updated", slot);
+    // Emit event (Disabled for Vercel Serverless polling)
+    // req.app.get("io").to(`location_${parking_location_id}`).emit("slot-updated", slot);
 
     successResponse(res, slot, "Slot created successfully", 201);
   } catch (error) {
@@ -96,7 +107,8 @@ const getSlots = async (req, res, next) => {
       .select(
         `
         *,
-        vehicle_categories (name, code)
+        vehicle_categories (name, code),
+        parking_sessions (ticket_number, vehicle_number, status)
       `,
       )
       .eq("parking_location_id", parking_location_id)
@@ -104,7 +116,25 @@ const getSlots = async (req, res, next) => {
 
     if (error) throw error;
 
-    successResponse(res, slots, "Slots fetched successfully");
+    const dbToFrontendCode = {
+      MEDIUM: "CAR",
+      LIGHT: "BIKE",
+      HEAVY: "TRUCK"
+    };
+
+    // Map relation back to flat string for the frontend
+    const formattedSlots = slots.map((s) => {
+      const activeSession = s.parking_sessions?.find(ps => ps.status === "ACTIVE");
+      return {
+        ...s,
+        vehicle_category: s.vehicle_categories ? (dbToFrontendCode[s.vehicle_categories.code] || s.vehicle_categories.code) : "-",
+        active_ticket: activeSession ? activeSession.ticket_number : null,
+        active_plate: activeSession ? activeSession.vehicle_number : null,
+        parking_sessions: undefined // clean up payload
+      };
+    });
+
+    successResponse(res, formattedSlots, "Slots fetched successfully");
   } catch (error) {
     next(error);
   }
@@ -167,12 +197,78 @@ const updateSlotStatus = async (req, res, next) => {
 
     if (error) throw error;
 
-    req.app
-      .get("io")
-      .to(`location_${slot.parking_location_id}`)
-      .emit("slot-updated", slot);
+    // Emit event (Disabled for Vercel Serverless polling)
+    // req.app.get("io").to(`location_${slot.parking_location_id}`).emit("slot-updated", slot);
 
     successResponse(res, slot, "Slot updated successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update slot details
+// @route   PATCH /api/slots/:id
+// @access  Private (PARKING_ADMIN)
+const updateSlot = async (req, res, next) => {
+  try {
+    const { slot_number, vehicle_category } = req.body;
+
+    if (req.user.role !== "PARKING_ADMIN") {
+      return errorResponse(res, "Only Parking Admin can modify slots", 403);
+    }
+
+    let updates = {};
+    if (slot_number) updates.slot_number = slot_number;
+
+    if (vehicle_category) {
+      const frontendToDbCode = { CAR: "MEDIUM", BIKE: "LIGHT", TRUCK: "HEAVY" };
+      const dbCode = frontendToDbCode[vehicle_category] || "MEDIUM";
+      const { data: catData } = await supabase
+        .from("vehicle_categories")
+        .select("id")
+        .eq("code", dbCode)
+        .single();
+      
+      if (catData?.id) updates.vehicle_category_id = catData.id;
+    }
+
+    const { data: slot, error } = await supabase
+      .from("parking_slots")
+      .update(updates)
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === "23505") {
+        return errorResponse(res, "Slot number already exists", 400);
+      }
+      throw error;
+    }
+
+    successResponse(res, slot, "Slot updated successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete slot
+// @route   DELETE /api/slots/:id
+// @access  Private (PARKING_ADMIN)
+const deleteSlot = async (req, res, next) => {
+  try {
+    if (req.user.role !== "PARKING_ADMIN") {
+      return errorResponse(res, "Only Parking Admin can delete slots", 403);
+    }
+
+    const { error } = await supabase
+      .from("parking_slots")
+      .delete()
+      .eq("id", req.params.id);
+
+    if (error) throw error;
+
+    successResponse(res, null, "Slot deleted successfully");
   } catch (error) {
     next(error);
   }
@@ -183,4 +279,6 @@ module.exports = {
   getSlots,
   getAvailableSlots,
   updateSlotStatus,
+  updateSlot,
+  deleteSlot,
 };

@@ -15,7 +15,14 @@ const getSummary = async (req, res, next) => {
       return errorResponse(res, "Parking location ID is required", 400);
     }
 
-    // 1. Slot Statistics
+    // 1. Slot Statistics & Location Name
+    const { data: locationData } = await supabase
+      .from("parking_locations")
+      .select("name")
+      .eq("id", parking_location_id)
+      .single();
+    const locationName = locationData ? locationData.name : "Unknown Location";
+
     const { data: slots, error: slotsError } = await supabase
       .from("parking_slots")
       .select("status")
@@ -79,6 +86,7 @@ const getSummary = async (req, res, next) => {
     successResponse(
       res,
       {
+        locationName,
         totalCapacity,
         occupiedSlots,
         availableSlots,

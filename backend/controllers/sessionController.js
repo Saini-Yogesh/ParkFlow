@@ -28,16 +28,29 @@ const calculateAmount = (entryTime, exitTime, pricingRule) => {
 // @access  Private (WORKER)
 const createEntry = async (req, res, next) => {
   try {
-    const { parking_location_id, vehicle_number, vehicle_category_id } =
-      req.body;
+    const { parking_location_id, vehicle_number, vehicle_category } = req.body;
 
-    if (!parking_location_id || !vehicle_number || !vehicle_category_id) {
+    if (!parking_location_id || !vehicle_number || !vehicle_category) {
       return errorResponse(
         res,
         "Please provide location, vehicle number and category",
         400,
       );
     }
+
+    // Translate frontend category to DB category ID
+    const frontendToDbCode = { CAR: "MEDIUM", BIKE: "LIGHT", TRUCK: "HEAVY" };
+    const dbCode = frontendToDbCode[vehicle_category] || "MEDIUM";
+    const { data: catData } = await supabase
+      .from("vehicle_categories")
+      .select("id")
+      .eq("code", dbCode)
+      .single();
+
+    if (!catData) {
+      return errorResponse(res, "Invalid vehicle category", 400);
+    }
+    const vehicle_category_id = catData.id;
 
     // Verify worker assignment
     if (req.user.role === "WORKER") {
@@ -88,7 +101,8 @@ const createEntry = async (req, res, next) => {
       );
     }
 
-    const ticket_number = `TKT-${randomUUID().split("-")[0].toUpperCase()}`;
+    // Generate 4 digit ticket number
+    const ticket_number = Math.floor(1000 + Math.random() * 9000).toString();
 
     // Transaction-like approach using RPC or separate queries
     // 1. Mark slot occupied
@@ -123,17 +137,62 @@ const createEntry = async (req, res, next) => {
 
     if (sessionError) throw sessionError;
 
-    // Emit events
-    req.app
-      .get("io")
-      .to(`location_${parking_location_id}`)
-      .emit("vehicle-entered", session);
-    req.app
-      .get("io")
-      .to(`location_${parking_location_id}`)
-      .emit("slot-updated", { id: slot.id, status: "OCCUPIED" });
+    // Emit events (Disabled for Vercel Serverless polling)
+    // req.app.get("io").to(`location_${parking_location_id}`).emit("vehicle-entered", session);
+    // req.app.get("io").to(`location_${parking_location_id}`).emit("slot-updated", { id: slot.id, status: "OCCUPIED" });
 
     successResponse(res, session, "Entry processed successfully", 201);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Calculate exit summary without processing
+// @route   POST /api/sessions/exit/calculate
+// @access  Private (WORKER)
+const calculateExit = async (req, res, next) => {
+  try {
+    const { identifier } = req.body;
+
+    if (!identifier) {
+      return errorResponse(res, "Please provide ticket or vehicle number", 400);
+    }
+
+    const { data: session, error: sessionError } = await supabase
+      .from("parking_sessions")
+      .select("*")
+      .eq("status", "ACTIVE")
+      .or(`ticket_number.eq.${identifier},vehicle_number.eq.${identifier}`)
+      .single();
+
+    if (sessionError || !session) {
+      return errorResponse(res, "Active parking session not found", 404);
+    }
+
+    const { data: pricingRule } = await supabase
+      .from("pricing_rules")
+      .select("*")
+      .eq("parking_location_id", session.parking_location_id)
+      .eq("vehicle_category_id", session.vehicle_category_id)
+      .single();
+
+    if (!pricingRule) {
+      return errorResponse(res, "Pricing rules not configured", 400);
+    }
+
+    const exitTime = new Date();
+    const { durationMinutes, totalAmount } = calculateAmount(
+      session.entry_time,
+      exitTime,
+      pricingRule,
+    );
+
+    successResponse(res, {
+      ...session,
+      exit_time: exitTime,
+      duration_hours: (durationMinutes / 60).toFixed(1),
+      amount_due: totalAmount
+    }, "Exit calculated");
   } catch (error) {
     next(error);
   }
@@ -223,15 +282,9 @@ const processExit = async (req, res, next) => {
       .update({ status: "AVAILABLE" })
       .eq("id", session.slot_id);
 
-    // Emit Events
-    req.app
-      .get("io")
-      .to(`location_${session.parking_location_id}`)
-      .emit("vehicle-exited", updatedSession);
-    req.app
-      .get("io")
-      .to(`location_${session.parking_location_id}`)
-      .emit("slot-updated", { id: session.slot_id, status: "AVAILABLE" });
+    // Emit Events (Disabled for Vercel Serverless polling)
+    // req.app.get("io").to(`location_${session.parking_location_id}`).emit("vehicle-exited", updatedSession);
+    // req.app.get("io").to(`location_${session.parking_location_id}`).emit("slot-updated", { id: session.slot_id, status: "AVAILABLE" });
 
     successResponse(res, updatedSession, "Exit processed successfully");
   } catch (error) {
@@ -278,6 +331,7 @@ const getSessions = async (req, res, next) => {
 
 module.exports = {
   createEntry,
+  calculateExit,
   processExit,
   getSessions,
 };
