@@ -206,7 +206,7 @@ const EnterpriseDashboard = () => {
           </div>
           <div className="chart-container">
             {revenueTrend.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={revenueTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                   <XAxis dataKey="date" stroke="#94a3b8" />
@@ -247,85 +247,133 @@ const EnterpriseDashboard = () => {
 
       {/* Tables for Employees & Heatmap */}
       <div
-        className="charts-grid"
-        style={{ marginTop: "24px", gridTemplateColumns: "1fr 1fr" }}
+        className="charts-grid charts-grid-half"
+        style={{ marginTop: "24px" }}
       >
         <div
           className="chart-card"
-          style={{ height: "auto", padding: "0", overflow: "hidden" }}
+          style={{
+            height: "400px",
+            padding: "0",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+          }}
         >
           <div className="chart-title" style={{ padding: "24px 24px 0 24px" }}>
-            Employee Leaderboard
+            Employee Leaderboard (Revenue)
           </div>
-          <div style={{ overflowX: "auto", padding: "0 24px 24px 24px" }}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Worker</th>
-                  <th>Tasks</th>
-                  <th>Revenue</th>
-                </tr>
-              </thead>
-              <tbody>
-                {employees.slice(0, 5).map((emp, idx) => (
-                  <tr key={idx}>
-                    <td style={{ fontWeight: 600 }}>{emp.employee_name}</td>
-                    <td>{emp.tasks_processed}</td>
-                    <td
-                      style={{
-                        color: "var(--success-main)",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      ${emp.revenue_generated}
-                    </td>
-                  </tr>
-                ))}
-                {employees.length === 0 && (
-                  <tr>
-                    <td colSpan="3">No data</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div
+            className="chart-container"
+            style={{ padding: "0 24px 24px 24px", flexGrow: 1, minHeight: 0 }}
+          >
+            {employees.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={employees.slice(0, 5)}
+                  layout="vertical"
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis type="number" stroke="#94a3b8" />
+                  <YAxis
+                    dataKey="employee_name"
+                    type="category"
+                    stroke="#94a3b8"
+                    width={80}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1e293b",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: 6,
+                    }}
+                    formatter={(value) => [`$${value}`, "Revenue"]}
+                  />
+                  <Bar
+                    dataKey="revenue_generated"
+                    fill="#10b981"
+                    radius={[0, 4, 4, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  height: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                No data
+              </div>
+            )}
           </div>
         </div>
 
         <div
           className="chart-card"
-          style={{ height: "auto", padding: "0", overflow: "hidden" }}
+          style={{
+            height: "400px",
+            padding: "0",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+          }}
         >
           <div className="chart-title" style={{ padding: "24px 24px 0 24px" }}>
             Peak Activity Distribution
           </div>
-          <div style={{ overflowX: "auto", padding: "0 24px 24px 24px" }}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Day (0=Sun)</th>
-                  <th>Hour (24H)</th>
-                  <th>Activity</th>
-                </tr>
-              </thead>
-              <tbody>
-                {heatmap.slice(0, 5).map((h, idx) => (
-                  <tr key={idx}>
-                    <td>Day {h.day_of_week}</td>
-                    <td>{h.hour_of_day}:00</td>
-                    <td>
-                      <span className="badge badge-primary">
-                        {h.activity_count} visits
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-                {heatmap.length === 0 && (
-                  <tr>
-                    <td colSpan="3">No data</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div
+            className="chart-container"
+            style={{ padding: "0 24px 24px 24px", flexGrow: 1, minHeight: 0 }}
+          >
+            {heatmap.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={heatmap
+                    .slice(0, 7)
+                    .map((h) => ({
+                      name: `D${h.day_of_week} ${h.hour_of_day}h`,
+                      activity: h.activity_count,
+                    }))}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis
+                    dataKey="name"
+                    stroke="#94a3b8"
+                    tick={{ fontSize: 12 }}
+                  />
+                  <YAxis stroke="#94a3b8" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1e293b",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: 6,
+                    }}
+                  />
+                  <Bar
+                    dataKey="activity"
+                    fill="#f59e0b"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  height: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                No data
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -43,25 +43,25 @@ const getVehicleTypes = async (req, res, next) => {
   }
 };
 
-// @desc    Get revenue trend (last 7 days)
+// @desc    Get revenue trend
 // @route   GET /api/analytics/revenue
 // @access  Private
 const getRevenueTrend = async (req, res, next) => {
   try {
-    const { parking_location_id } = req.query;
+    const { parking_location_id, days = 30 } = req.query;
 
     if (!parking_location_id)
       return errorResponse(res, "Parking location ID is required", 400);
 
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const pastDate = new Date();
+    pastDate.setDate(pastDate.getDate() - parseInt(days));
 
     const { data: sessions, error } = await supabase
       .from("parking_sessions")
       .select("exit_time, total_amount")
       .eq("parking_location_id", parking_location_id)
       .eq("status", "COMPLETED")
-      .gte("exit_time", sevenDaysAgo.toISOString());
+      .gte("exit_time", pastDate.toISOString());
 
     if (error) throw error;
 
@@ -85,7 +85,43 @@ const getRevenueTrend = async (req, res, next) => {
   }
 };
 
+// @desc    Get peak hours for a specific location
+// @route   GET /api/analytics/peak-hours
+// @access  Private
+const getPeakHours = async (req, res, next) => {
+  try {
+    const { parking_location_id } = req.query;
+
+    if (!parking_location_id)
+      return errorResponse(res, "Parking location ID is required", 400);
+
+    const { data: sessions, error } = await supabase
+      .from("parking_sessions")
+      .select("entry_time")
+      .eq("parking_location_id", parking_location_id)
+      .not("entry_time", "is", null);
+
+    if (error) throw error;
+
+    const hourlyActivity = Array(24).fill(0);
+    sessions.forEach((s) => {
+      const hour = new Date(s.entry_time).getHours();
+      hourlyActivity[hour]++;
+    });
+
+    const result = hourlyActivity.map((count, hour) => ({
+      hour: `${hour.toString().padStart(2, '0')}:00`,
+      activity: count,
+    }));
+
+    successResponse(res, result, "Peak hours fetched successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getVehicleTypes,
   getRevenueTrend,
+  getPeakHours,
 };

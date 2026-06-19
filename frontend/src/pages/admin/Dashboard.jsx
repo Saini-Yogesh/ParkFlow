@@ -12,6 +12,8 @@ import {
   Pie,
   Cell,
   Legend,
+  BarChart,
+  Bar,
 } from "recharts";
 import toast from "react-hot-toast";
 import "../../assets/css/Dashboard.css";
@@ -25,6 +27,7 @@ const Dashboard = () => {
   const [summary, setSummary] = useState(null);
   const [revenueTrend, setRevenueTrend] = useState([]);
   const [vehicleTypes, setVehicleTypes] = useState([]);
+  const [peakHours, setPeakHours] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,15 +58,17 @@ const Dashboard = () => {
   const fetchDashboardData = async (locationId) => {
     setLoading(true);
     try {
-      const [summaryRes, trendRes, typeRes] = await Promise.all([
+      const [summaryRes, trendRes, typeRes, peakRes] = await Promise.all([
         api.get(`/dashboard/summary?parking_location_id=${locationId}`),
-        api.get(`/analytics/revenue?parking_location_id=${locationId}`),
+        api.get(`/analytics/revenue?parking_location_id=${locationId}&days=30`),
         api.get(`/analytics/vehicle-types?parking_location_id=${locationId}`),
+        api.get(`/analytics/peak-hours?parking_location_id=${locationId}`),
       ]);
 
       setSummary(summaryRes.data.data);
       setRevenueTrend(trendRes.data.data);
       setVehicleTypes(typeRes.data.data);
+      setPeakHours(peakRes.data.data);
     } catch (err) {
       toast.error("Failed to fetch dashboard metrics");
     } finally {
@@ -182,9 +187,9 @@ const Dashboard = () => {
 
           <div className="charts-grid">
             <div className="chart-card">
-              <div className="chart-title">Revenue Trend (Last 7 Days)</div>
-              <div className="chart-container">
-                <ResponsiveContainer width="100%" height="100%">
+              <div className="chart-title">Revenue Trend (30 Days)</div>
+              <div className="chart-container" style={{ minHeight: "300px" }}>
+                <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={revenueTrend}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                     <XAxis dataKey="date" stroke="#94a3b8" />
@@ -210,10 +215,45 @@ const Dashboard = () => {
             </div>
 
             <div className="chart-card">
+              <div className="chart-title">Peak Hours Activity</div>
+              <div className="chart-container" style={{ minHeight: "300px" }}>
+                {peakHours.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={peakHours}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                      <XAxis dataKey="hour" stroke="#94a3b8" />
+                      <YAxis stroke="#94a3b8" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#1e293b",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          borderRadius: 6,
+                        }}
+                      />
+                      <Bar dataKey="activity" fill="#14b8a6" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      height: "100%",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
+                    No activity data available
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="chart-card">
               <div className="chart-title">Vehicle Distribution</div>
-              <div className="chart-container">
+              <div className="chart-container" style={{ minHeight: "300px" }}>
                 {vehicleTypes.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
                         data={vehicleTypes}
@@ -254,6 +294,40 @@ const Dashboard = () => {
                     No vehicle data available
                   </div>
                 )}
+              </div>
+            </div>
+
+            <div className="chart-card">
+              <div className="chart-title">Slot Utilization</div>
+              <div className="chart-container" style={{ minHeight: "300px" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: "Occupied", value: summary?.occupiedSlots || 0 },
+                        { name: "Available", value: summary?.availableSlots || 0 },
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      <Cell fill="#f59e0b" />
+                      <Cell fill="#10b981" />
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#1e293b",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: 6,
+                      }}
+                      formatter={(value) => [`${value} Slots`, "Count"]}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </div>
