@@ -6,7 +6,7 @@ async function generateAdmin() {
   console.log(`
 -- Run this in Supabase SQL Editor to create your first Super Admin
 INSERT INTO users (name, email, password_hash, role, status)
-VALUES ('Super Admin', 'admin@parkflow.com', '${hash}', 'SUPER_ADMIN', 'ACTIVE');
+VALUES ('Super Admin', 'admin@parknova.com', '${hash}', 'SUPER_ADMIN', 'ACTIVE');
   `);
 }
 

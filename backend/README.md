@@ -1,6 +1,6 @@
-# ParkFlow Backend ⚙️
+# ParkNova Backend ⚙️
 
-The backend for ParkFlow is a robust, highly-scalable Express.js REST API. It handles authentication, data validation, business logic, and real-time operations, backed by a powerful PostgreSQL database managed via Supabase.
+The backend for ParkNova is a robust, highly-scalable Express.js REST API. It handles authentication, data validation, business logic, and real-time operations, backed by a powerful PostgreSQL database managed via Supabase.
 
 ## 🛠️ Tech Stack
 
@@ -72,7 +72,7 @@ All protected routes require an `Authorization: Bearer <token>` header. The `pro
 
 ## 🗄️ Database Schema & Relationships
 
-ParkFlow uses a robust relational PostgreSQL database with the following core tables:
+ParkNova uses a robust relational PostgreSQL database with the following core tables:
 
 ### 1. `users`
 Stores all platform users.

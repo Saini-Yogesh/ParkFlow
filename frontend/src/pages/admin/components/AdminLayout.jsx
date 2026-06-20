@@ -78,7 +78,7 @@ const AdminLayout = () => {
       {/* Sidebar */}
       <aside className={`admin-sidebar ${mobileOpen ? "open" : ""}`}>
         <div className="sidebar-header">
-          <div className="sidebar-title">ParkFlow Admin</div>
+          <div className="sidebar-title">ParkNova Admin</div>
         </div>
         <nav className="sidebar-nav">
           {menuItems.map((item) => {

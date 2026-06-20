@@ -48,7 +48,7 @@ app.use(
 app.get("/", (req, res) => {
   res
     .status(200)
-    .json({ success: true, message: "ParkFlow API is running on Vercel!" });
+    .json({ success: true, message: "ParkNova API is running on Vercel!" });
 });
 
 app.get("/api/health", (req, res) => {

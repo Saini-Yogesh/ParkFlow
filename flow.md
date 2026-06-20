@@ -1,12 +1,12 @@
-# ParkFlow System Architecture & Website Flow
+# ParkNova System Architecture & Website Flow
 
-This document outlines the complete, detailed flow of the ParkFlow web application, encompassing both the frontend user journey and the underlying backend architecture, including database schemas, relationships, and system design.
+This document outlines the complete, detailed flow of the ParkNova web application, encompassing both the frontend user journey and the underlying backend architecture, including database schemas, relationships, and system design.
 
 ---
 
 ## 1. System Architecture Overview
 
-ParkFlow is a full-stack web application designed for comprehensive parking management. The architecture is composed of:
+ParkNova is a full-stack web application designed for comprehensive parking management. The architecture is composed of:
 
 - **Frontend**: A React.js application using Vite, leveraging React Router for client-side navigation. It uses role-based access control (RBAC) to present different dashboards based on user permissions.
 - **Backend**: A Node.js and Express.js REST API providing secure endpoints for all operations. It implements rate-limiting, CORS, HTTP request logging (Morgan), and global error handling.

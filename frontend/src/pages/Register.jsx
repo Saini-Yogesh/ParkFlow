@@ -29,7 +29,7 @@ const Register = () => {
   return (
     <div className="auth-container">
       <div className="auth-paper">
-        <h1 className="auth-title">ParkFlow</h1>
+        <h1 className="auth-title">ParkNova</h1>
         <p className="auth-subtitle">Create a new Admin account</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>

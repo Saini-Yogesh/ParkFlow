@@ -1,8 +1,8 @@
-# ParkFlow 🚗💨
+# ParkNova 🚗💨
 
-ParkFlow is a comprehensive, enterprise-grade Parking Management System designed to handle multiple parking locations, diverse vehicle categories, dynamic pricing rules, and real-time analytics. It provides tailored dashboards for Enterprise Administrators, Location Managers, and On-the-ground Workers.
+ParkNova is a comprehensive, enterprise-grade Parking Management System designed to handle multiple parking locations, diverse vehicle categories, dynamic pricing rules, and real-time analytics. It provides tailored dashboards for Enterprise Administrators, Location Managers, and On-the-ground Workers.
 
-![ParkFlow Banner](https://via.placeholder.com/1200x400?text=ParkFlow+-+Enterprise+Parking+Management)
+![ParkNova Banner](https://via.placeholder.com/1200x400?text=ParkNova+-+Enterprise+Parking+Management)
 
 ## 🌟 Key Features
 
@@ -33,8 +33,8 @@ This is a full-stack monorepo consisting of two main environments:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/Saini-Yogesh/ParkFlow.git
-   cd ParkFlow
+   git clone https://github.com/Saini-Yogesh/ParkNova.git
+   cd ParkNova
    ```
 
 2. **Set up the Backend:**

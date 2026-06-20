@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "apple-touch-icon.png"],
       manifest: {
-        name: "ParkFlow",
-        short_name: "ParkFlow",
+        name: "ParkNova",
+        short_name: "ParkNova",
         description: "Intelligent Parking Management System",
         theme_color: "#0f172a",
         background_color: "#0f172a",

@@ -1,6 +1,6 @@
-# ParkFlow Frontend 🖥️
+# ParkNova Frontend 🖥️
 
-The frontend for ParkFlow is a modern, responsive Single Page Application (SPA) built using React and Vite. It features a stunning, premium dark-mode aesthetic with dynamic micro-animations, built to provide an incredible user experience for both administrators and on-the-ground workers.
+The frontend for ParkNova is a modern, responsive Single Page Application (SPA) built using React and Vite. It features a stunning, premium dark-mode aesthetic with dynamic micro-animations, built to provide an incredible user experience for both administrators and on-the-ground workers.
 
 ## 🛠️ Tech Stack
 
@@ -57,7 +57,7 @@ The frontend for ParkFlow is a modern, responsive Single Page Application (SPA) 
 
 ## 🎨 Design Philosophy
 
-The ParkFlow frontend avoids bloated CSS frameworks in favor of a strictly controlled Vanilla CSS design system (`AdminCommon.css`, `index.css`). It prioritizes:
+The ParkNova frontend avoids bloated CSS frameworks in favor of a strictly controlled Vanilla CSS design system (`AdminCommon.css`, `index.css`). It prioritizes:
 - **Glassmorphism & Depth**: Subtle shadows, semi-transparent backgrounds, and blurred overlays.
 - **Data Density**: Complex data is structured into highly readable data tables, grids, and visual charts.
 - **Feedback**: Every interactive element features micro-animations and hover states. Form submissions use non-blocking toast notifications.

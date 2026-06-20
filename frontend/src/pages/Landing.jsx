@@ -36,7 +36,7 @@ const Landing = () => {
       <nav className="landing-navbar">
         <div className="landing-logo">
           <CarFront size={28} color="#3b82f6" />
-          <span>ParkFlow</span>
+          <span>ParkNova</span>
         </div>
         <div className="landing-nav-links">
           <Link to="/login" className="nav-link">
@@ -320,7 +320,7 @@ const Landing = () => {
         >
           <h2 className="cta-title">Ready to modernize your lots?</h2>
           <p className="cta-subtitle">
-            Join hundreds of enterprise operators who trust ParkFlow.
+            Join hundreds of enterprise operators who trust ParkNova.
           </p>
           <Link
             to="/register"
@@ -336,9 +336,9 @@ const Landing = () => {
       <footer className="landing-footer">
         <div className="landing-logo" style={{ fontSize: "1.2rem" }}>
           <CarFront size={20} color="#3b82f6" />
-          <span>ParkFlow</span>
+          <span>ParkNova</span>
         </div>
-        <p>&copy; {new Date().getFullYear()} ParkFlow Enterprise Systems.</p>
+        <p>&copy; {new Date().getFullYear()} ParkNova Enterprise Systems.</p>
       </footer>
     </main>
   );

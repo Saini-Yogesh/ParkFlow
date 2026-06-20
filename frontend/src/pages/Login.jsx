@@ -28,7 +28,7 @@ const Login = () => {
   return (
     <div className="auth-container">
       <div className="auth-paper">
-        <h1 className="auth-title">ParkFlow</h1>
+        <h1 className="auth-title">ParkNova</h1>
         <p className="auth-subtitle">Sign in to your account</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>

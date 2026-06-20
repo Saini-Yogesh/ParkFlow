@@ -164,7 +164,7 @@ const WorkerDashboard = () => {
     >
       <header className="admin-header">
         <div className="header-title" style={{ color: "var(--primary-main)" }}>
-          ParkFlow Worker Terminal
+          ParkNova Worker Terminal
         </div>
         <div className="header-right" ref={menuRef}>
           <button

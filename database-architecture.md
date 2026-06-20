@@ -1,6 +1,6 @@
-# ParkFlow Database Architecture
+# ParkNova Database Architecture
 
-This document provides a detailed visual layout of the ParkFlow database schema, entity relationships, and connections using an Entity-Relationship (ER) diagram.
+This document provides a detailed visual layout of the ParkNova database schema, entity relationships, and connections using an Entity-Relationship (ER) diagram.
 
 ## Entity-Relationship Diagram
 
