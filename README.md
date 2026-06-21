@@ -2,7 +2,13 @@
 
 ParkNova is a comprehensive, enterprise-grade Parking Management System designed to handle multiple parking locations, diverse vehicle categories, dynamic pricing rules, and real-time analytics. It provides tailored dashboards for Enterprise Administrators, Location Managers, and On-the-ground Workers.
 
-![ParkNova Banner](https://via.placeholder.com/1200x400?text=ParkNova+-+Enterprise+Parking+Management)
+![ParkNova Banner](ParkNova-Banner.png)
+
+## 🌐 Live Demo & Documentation
+
+- **Live Website:** [parknova-jade.vercel.app](https://parknova-jade.vercel.app/)
+- **Understand the Flow:** [System Flow & User Journey](./flow.md)
+- **Database Architecture:** [Database Schema & ER Diagram](./database-architecture.md)
 
 ## 🌟 Key Features
 
